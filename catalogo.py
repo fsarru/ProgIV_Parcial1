@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 @dataclass(frozen=True)
 class UnidadMedida:
@@ -54,6 +54,11 @@ class Producto(ABC):
         if self._unidad_venta:
             return f"$ {self._precio_base:.2f} / {self._unidad_venta.simbolo}"
         return f"$ {self._precio_base:.2f}"
+
+def destacar_en_vidriera(self, orden: Optional[int]) -> None: 
+    if orden is not None and (not isinstance(orden, int) or orden < 1):
+        raise ValueError("El orden debe ser un entero positivo.")
+    self._orden_vidriera = orden
 
     def _validar_cantidad(self, cantidad: float) -> None:
         if not isinstance(cantidad, (int, float)) or cantidad < 1 or cantidad % 1 != 0:
@@ -153,3 +158,11 @@ class ProductoPorPeso(Producto):
         if cantidad <= 0:
             raise ValueError("La cantidad debe ser > 0.")
         return round(self.precio_base * cantidad, 2)
+
+# Requerimiento 4: Protocolo de contrato estructural
+class Exportable(Protocol):
+    def exportar(self) -> str:
+        ...
+
+def exportar_catalogo(items: List[Exportable]) -> List[str]:
+    return [item.exportar() for item in items]
