@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -24,6 +24,7 @@ class Producto(ABC):
         self._precio_base = precio_base
         self._stock_cantidad = stock_cantidad
         self._habilitado = True
+        self._orden_vidriera = None
         
         # Corrección: El atributo debe llevar el guion bajo interno (_unidad_venta)
         self._unidad_venta = unidad_venta
@@ -54,6 +55,11 @@ class Producto(ABC):
             return f"$ {self._precio_base:.2f} / {self._unidad_venta.simbolo}"
         return f"$ {self._precio_base:.2f}"
 
+    def _validar_cantidad(self, cantidad: float) -> None:
+        if not isinstance(cantidad, (int, float)) or cantidad < 1 or cantidad % 1 != 0:
+            raise ValueError("La cantidad debe ser entera y mayor a 0.")
+
+    
     def clasificar_en(self, categoria: "Categoria", es_principal: bool = False) -> None:
         for clasificacion in self._clasificaciones:
             if clasificacion.categoria == categoria:
@@ -75,6 +81,13 @@ class Producto(ABC):
             if clasificacion.es_principal:
                 return clasificacion.categoria
         raise RuntimeError("Invariante roto: No hay categoría principal.")
+
+    @abstractmethod
+    def precio_final(self, cantidad: float) -> float:
+        pass
+
+    def exportar(self) -> str:
+        return f"PROD {self._nombre} | {self.precio_publicado} | Stock: {self._stock_cantidad}"
 
 
 class Categoria:
@@ -122,10 +135,21 @@ class ProductoCombo(Producto):
         self._componentes = list(componentes)
         self._descuento = descuento
 
-        def componentes(self) -> Tuple[Producto, ...]:
-            return tuple(self._componentes)
-    
-        def precio_final(self, cantidad: float) -> float:
-            if not isinstance(cantidad, (int, float)) or cantidad < 1 or cantidad % 1 != 0:
-                raise ValueError("La cantidad de combos debe ser entera y >= 1.")
-            return self.precio_base * cantidad
+    def componentes(self) -> Tuple[Producto, ...]:
+        return tuple(self._componentes)
+
+    def precio_final(self, cantidad: float) -> float:
+        self._validar_cantidad(cantidad)
+        return self.precio_base * cantidad
+
+class ProductoSimple(Producto):
+    def precio_final(self, cantidad: float) -> float:
+        self._validar_cantidad(cantidad)
+        return self.precio_base * cantidad
+
+class ProductoPorPeso(Producto):
+    def precio_final(self, cantidad: float) -> float:
+        self._validar_cantidad(cantidad)
+        if cantidad <= 0:
+            raise ValueError("La cantidad debe ser > 0.")
+        return round(self.precio_base * cantidad, 2)
