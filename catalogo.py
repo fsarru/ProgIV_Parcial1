@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Protocol
+
 
 @dataclass(frozen=True)
 class UnidadMedida:
@@ -8,9 +9,17 @@ class UnidadMedida:
     simbolo: str
     tipo: str
 
+
 class Producto(ABC):
     # Corrección: Uso de comillas en "Categoria" y "UnidadMedida" para evitar NameError por declaración tardía
-    def __init__(self, nombre: str, precio_base: float, stock_cantidad: float, categoria_principal: "Categoria", unidad_venta: Optional["UnidadMedida"] = None) -> None:
+    def __init__(
+        self,
+        nombre: str,
+        precio_base: float,
+        stock_cantidad: float,
+        categoria_principal: "Categoria",
+        unidad_venta: Optional["UnidadMedida"] = None,
+    ) -> None:
         # Validaciones de dominio
         if not nombre:
             raise ValueError("El nombre no puede estar vacío.")
@@ -25,14 +34,14 @@ class Producto(ABC):
         self._stock_cantidad = stock_cantidad
         self._habilitado = True
         self._orden_vidriera = None
-        
+
         # Corrección: El atributo debe llevar el guion bajo interno (_unidad_venta)
         self._unidad_venta = unidad_venta
-        
+
         # Corrección: El producto fabrica internamente el primer vínculo usando categoria_principal
         self._clasificaciones = []
         self._clasificaciones.append(ProductoCategoria(categoria_principal, True))
-        
+
     @property
     def nombre(self) -> str:
         return self._nombre
@@ -55,16 +64,15 @@ class Producto(ABC):
             return f"$ {self._precio_base:.2f} / {self._unidad_venta.simbolo}"
         return f"$ {self._precio_base:.2f}"
 
-def destacar_en_vidriera(self, orden: Optional[int]) -> None: 
-    if orden is not None and (not isinstance(orden, int) or orden < 1):
-        raise ValueError("El orden debe ser un entero positivo.")
-    self._orden_vidriera = orden
+    def destacar_en_vidriera(self, orden: Optional[int]) -> None:
+        if orden is not None and (not isinstance(orden, int) or orden < 1):
+            raise ValueError("El orden debe ser un entero positivo.")
+        self._orden_vidriera = orden
 
     def _validar_cantidad(self, cantidad: float) -> None:
         if not isinstance(cantidad, (int, float)) or cantidad < 1 or cantidad % 1 != 0:
             raise ValueError("La cantidad debe ser entera y mayor a 0.")
 
-    
     def clasificar_en(self, categoria: "Categoria", es_principal: bool = False) -> None:
         for clasificacion in self._clasificaciones:
             if clasificacion.categoria == categoria:
@@ -99,7 +107,7 @@ class Categoria:
     def __init__(self, nombre: str, descripcion: str = "") -> None:
         self._nombre = nombre
         self._descripcion = descripcion
-        
+
     @property
     def nombre(self) -> str:
         return self._nombre
@@ -128,7 +136,14 @@ class ProductoCategoria:
 
 
 class ProductoCombo(Producto):
-    def __init__(self, nombre: str, stock_cantidad: float, categoria_principal: Categoria, componentes: List[Producto], descuento: float) -> None:
+    def __init__(
+        self,
+        nombre: str,
+        stock_cantidad: float,
+        categoria_principal: Categoria,
+        componentes: List[Producto],
+        descuento: float,
+    ) -> None:
         if len(componentes) < 2:
             raise ValueError("Un combo debe tener al menos 2 componentes.")
         if not (0 <= descuento < 1):
@@ -147,10 +162,12 @@ class ProductoCombo(Producto):
         self._validar_cantidad(cantidad)
         return self.precio_base * cantidad
 
+
 class ProductoSimple(Producto):
     def precio_final(self, cantidad: float) -> float:
         self._validar_cantidad(cantidad)
         return self.precio_base * cantidad
+
 
 class ProductoPorPeso(Producto):
     def precio_final(self, cantidad: float) -> float:
@@ -159,10 +176,10 @@ class ProductoPorPeso(Producto):
             raise ValueError("La cantidad debe ser > 0.")
         return round(self.precio_base * cantidad, 2)
 
+
 # Requerimiento 4: Protocolo de contrato estructural
 class Exportable(Protocol):
-    def exportar(self) -> str:
-        ...
+    def exportar(self) -> str: ...
 
 def exportar_catalogo(items: List[Exportable]) -> List[str]:
     return [item.exportar() for item in items]
