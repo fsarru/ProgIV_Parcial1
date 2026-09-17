@@ -3,7 +3,7 @@
 
 Tecnicatura Universitaria en Programación (UTN) — Modalidad a distancia.
 
-# *Alumno*: Franco Sarrú
+*Alumno* : Franco Sarrú
 
 
 ## Descripción
