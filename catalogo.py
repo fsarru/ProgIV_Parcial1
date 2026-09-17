@@ -11,7 +11,6 @@ class UnidadMedida:
 
 
 class Producto(ABC):
-    # Corrección: Uso de comillas en "Categoria" y "UnidadMedida" para evitar NameError por declaración tardía
     def __init__(
         self,
         nombre: str,
@@ -20,7 +19,6 @@ class Producto(ABC):
         categoria_principal: "Categoria",
         unidad_venta: Optional["UnidadMedida"] = None,
     ) -> None:
-        # Validaciones de dominio
         if not nombre:
             raise ValueError("El nombre no puede estar vacío.")
         if precio_base < 0:
@@ -35,10 +33,8 @@ class Producto(ABC):
         self._habilitado = True
         self._orden_vidriera = None
 
-        # Corrección: El atributo debe llevar el guion bajo interno (_unidad_venta)
         self._unidad_venta = unidad_venta
 
-        # Corrección: El producto fabrica internamente el primer vínculo usando categoria_principal
         self._clasificaciones = []
         self._clasificaciones.append(ProductoCategoria(categoria_principal, True))
 
@@ -83,7 +79,6 @@ class Producto(ABC):
                 if clasificacion.es_principal:
                     clasificacion._marcar_principal(False)
 
-        # El código cliente pasa la categoría, el producto fabrica el vínculo
         self._clasificaciones.append(ProductoCategoria(categoria, es_principal))
 
     def categorias(self) -> Tuple["ProductoCategoria", ...]:
@@ -116,8 +111,6 @@ class Categoria:
     def descripcion(self) -> str:
         return self._descripcion
 
-
-# Corrección: Se eliminó la duplicación de la clase ProductoCategoria. Se conservó esta que tiene la property 'categoria'.
 class ProductoCategoria:
     def __init__(self, categoria: Categoria, es_principal: bool) -> None:
         self._categoria = categoria
@@ -175,7 +168,6 @@ class ProductoPorPeso(Producto):
             raise ValueError("La cantidad debe ser > 0.")
         return round(self.precio_base * cantidad, 2)
 
-# Requerimiento 4: Protocolo de contrato estructural
 class Exportable(Protocol):
     def exportar(self) -> str: ...
 
