@@ -171,11 +171,9 @@ class ProductoSimple(Producto):
 
 class ProductoPorPeso(Producto):
     def precio_final(self, cantidad: float) -> float:
-        self._validar_cantidad(cantidad)
         if cantidad <= 0:
             raise ValueError("La cantidad debe ser > 0.")
         return round(self.precio_base * cantidad, 2)
-
 
 # Requerimiento 4: Protocolo de contrato estructural
 class Exportable(Protocol):
