@@ -3,6 +3,9 @@
 
 Tecnicatura Universitaria en Programación (UTN) — Modalidad a distancia.
 
+# *Alumno*: Franco Sarrú
+
+
 ## Descripción
 
 Modelo de catálogo para un comercio (Food Store) que vende productos por
