@@ -25,7 +25,7 @@ def main():
     try:
         class ProductoIncompleto(Producto):
             pass
-        p_falla = ProductoIncompleto("Test", 10.0, 5.0, cat_bebidas)
+        ProductoIncompleto("Test", 10.0, 5.0, cat_bebidas)
     except TypeError as e:
         print(f"[OK] Fallo temprano al instanciar ABC/incompleta: {e}")
 
